@@ -1,5 +1,8 @@
 package jml.alura.forohub.domain.topico;
 import jakarta.persistence.*;
+import jml.alura.forohub.domain.curso.Curso;
+import jml.alura.forohub.domain.curso.CursoRepository;
+import jml.alura.forohub.domain.usuario.Usuario;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -25,17 +28,22 @@ public class Topico {
     private String mensaje;
     private Date fechaCreacion;
     private Boolean status;
-    private String autor;
-    private String curso;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "autor_id")
+    private Usuario autor;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "curso_id")
+
+    private Curso curso;
 
 
-    public Topico(DatosRegistroTopico datosRegistroTopico) {
+    public Topico(DatosRegistroTopico datosRegistroTopico, Usuario autor, Curso curso) {
         this.status=true;
         this.titulo = datosRegistroTopico.titulo();
         this.mensaje = datosRegistroTopico.mensaje();
         this.fechaCreacion =  Date.from(Instant.now());
-        this.autor = datosRegistroTopico.autor();
-        this.curso = datosRegistroTopico.curso();
+        this.autor = autor;
+        this.curso = curso;
 
     }
 }

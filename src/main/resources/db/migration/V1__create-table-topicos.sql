@@ -4,8 +4,8 @@ create table topicos (
     mensaje text not null,
     fecha_creacion datetime not null default current_timestamp,
     status boolean not null,
-    autor varchar(100) not null,
-    curso varchar(100) not null,
+    autor_id bigint not null,
+    curso_id bigint not null,
     respuestas varchar(100),
     primary key (id)
 )

@@ -1,19 +1,17 @@
-package jml.alura.forohub.domain.topico;
+package jml.alura.forohub.domain.respuesta;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jml.alura.forohub.domain.curso.Curso;
 
-public record DatosRegistroTopico(
-        @NotBlank
-        String titulo,
+public record DatosRegistroRespuesta(
         @NotBlank
         String mensaje,
         @NotBlank
+        String topico,
+        @NotBlank
         String autor,
         @NotNull
-        String curso
+        String solucion
 ) {
+
 }
-
-
