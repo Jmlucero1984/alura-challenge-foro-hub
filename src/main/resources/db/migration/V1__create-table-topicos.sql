@@ -1,4 +1,4 @@
-create table topicos (
+ create table topicos (
     id bigint not null auto_increment,
     titulo varchar(100) not null,
     mensaje text not null,
@@ -6,6 +6,5 @@ create table topicos (
     status boolean not null,
     autor_id bigint not null,
     curso_id bigint not null,
-    respuestas varchar(100),
     primary key (id)
 )

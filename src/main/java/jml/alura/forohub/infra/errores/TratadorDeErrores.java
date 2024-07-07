@@ -14,10 +14,6 @@ import java.sql.SQLIntegrityConstraintViolationException;
 @RestControllerAdvice
 public class TratadorDeErrores {
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity tratarError404(){
-        return ResponseEntity.notFound().build();
-    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity tratarError400(MethodArgumentNotValidException e){
@@ -52,6 +48,14 @@ public class TratadorDeErrores {
             return ResponseEntity.badRequest().body("No se pudo hacer la consulta");
         }
         return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity errorElementoInexistente(Exception e){
+
+
+        return ResponseEntity.badRequest().body("No existe el elemento buscado");
     }
 
 }
