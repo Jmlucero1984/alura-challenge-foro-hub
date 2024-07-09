@@ -1,5 +1,7 @@
 package jml.alura.forohub.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jml.alura.forohub.domain.perfil.Perfil;
 import jml.alura.forohub.domain.perfil.PerfilRepository;
@@ -13,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -24,6 +27,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/usuarios")
+@SecurityRequirement(name="bearer-key")
 public class UsuarioController {
 
 
@@ -32,16 +36,18 @@ public class UsuarioController {
     @Autowired
     private PerfilRepository perfilRepository;
 
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
 
+    @Operation(
+            summary = "Registra un nuevo usuario",
+            description = "Registra un nuevo usuario en la base de datos, validando los datos ingresados",
+            tags = { "usuario", "post" })
     @PostMapping
-    public ResponseEntity<DatosRespuestaUsuario> registrarUsuario (@RequestBody @Valid DatosRegistroUsuario datosRegistroUsuario,
-                                                                 UriComponentsBuilder uriComponentsBuilder) {
-        datosRegistroUsuario.perfiles().stream().forEach(System.out::println);
-        System.out.println(datosRegistroUsuario.perfiles().size());
+    public ResponseEntity<DatosRespuestaUsuario> registrarUsuario (@RequestBody @Valid DatosRegistroUsuario datosRegistroUsuario, UriComponentsBuilder uriComponentsBuilder) {
         Set<Perfil> perfiles =datosRegistroUsuario.perfiles().stream()
                 .map(e -> {
-                    System.out.println("PERFIL: "+e.nombre());
                     Optional<Perfil> perfil = Optional.ofNullable(perfilRepository.findByNombre(e.nombre()));
                     if (perfil.isPresent()) {
                         return perfil.get();
@@ -51,22 +57,21 @@ public class UsuarioController {
                     }
                 })
                 .collect(Collectors.toSet());
-
-
-
-        Usuario usuario = usuarioRepository.save(new Usuario(datosRegistroUsuario,perfiles));
+        Usuario usuario = usuarioRepository.save(new Usuario(datosRegistroUsuario,bCryptPasswordEncoder.encode(datosRegistroUsuario.contraseña()),perfiles));
         DatosRespuestaUsuario datosRespuestaUsuario = new DatosRespuestaUsuario(
                 usuario.getId(),
                 usuario.getNombre(),
                 usuario.getCorreo_electronico(),
                 usuario.getContraseña()
-
         );
         URI url = uriComponentsBuilder.path("/usuario/{id}").buildAndExpand(usuario.getId()).toUri();
         return ResponseEntity.created(url).body(datosRespuestaUsuario);
     }
 
-
+    @Operation(
+            summary = "Devuelve un usuario",
+            description = "Devuelve un usuario de la base de datos según su id.",
+            tags = { "usuario", "get" })
     @GetMapping("/{id}")
     public ResponseEntity retornaDatosUsuario(@PathVariable Long id) {
         Usuario usuario = usuarioRepository.getReferenceById(id);
@@ -75,10 +80,8 @@ public class UsuarioController {
                 usuario.getNombre(),
                 usuario.getCorreo_electronico(),
                 usuario.getContraseña()
-
         );
         return ResponseEntity.ok(datosUsuario);
     }
-
 
 }

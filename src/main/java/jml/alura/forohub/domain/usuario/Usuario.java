@@ -7,11 +7,12 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
-import java.util.Date;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /*
@@ -27,7 +28,7 @@ Tampoco hubo resultados favorables al hacer una migracion adicional para agregar
 @AllArgsConstructor
 @EqualsAndHashCode(of ="correo_electronico")
 
-public class Usuario {
+public class Usuario implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,12 +49,27 @@ public class Usuario {
 
 
 
-    public Usuario(DatosRegistroUsuario datosRegistroUsuario,Set<Perfil> perfiles) {
+    public Usuario(DatosRegistroUsuario datosRegistroUsuario,String contraseña,Set<Perfil> perfiles) {
         this.nombre = datosRegistroUsuario.nombre();
         this.correo_electronico = datosRegistroUsuario.correoElectronico();
-        this.contraseña = datosRegistroUsuario.contraseña();
+        this.contraseña = contraseña;
         this.perfiles = perfiles;
 
 
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+
+    @Override
+    public String getPassword() {
+        return contraseña;
+    }
+
+    @Override
+    public String getUsername() {
+        return nombre;
     }
 }
